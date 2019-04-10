@@ -1,15 +1,16 @@
 import React, { Fragment } from 'react';
-import { Query } from 'react-apollo';
+import { Query, Mutation } from 'react-apollo';
 import { Link } from 'react-router-dom';
 
 import { CLIENTES_QUERY } from '../queries';
+import { ELIMINAR_CLIENTE } from '../mutations';
 
 const Clientes = () => (
-  <Query query={CLIENTES_QUERY} pollInterval={1000}>
+  <Query query={CLIENTES_QUERY} pollInterval={500}>
     {({ loading, error, data, startPolling, stopPolling }) => {
       if (loading) return "Cargando...";
       if (error) return `Error: ${error.message}`;
-      console.log(data.getClientes);
+      //console.log(data.getClientes);
 
       return (
         <Fragment>
@@ -22,6 +23,23 @@ const Clientes = () => (
                     {cliente.nombre} {cliente.apellido} - {cliente.empresa}
                   </div>
                   <div className="col-md-4 d-flex justify-content-end">
+                    <Mutation mutation={ELIMINAR_CLIENTE} >
+                      {eliminarCliente => (
+                        <button
+                          type="button"
+                          className="btn btn-danger d-block d-md-inline-block mr-2"
+                          onClick={() => {
+                            if (window.confirm('Seguro que deseas eliminar este cliente?')) {
+                              eliminarCliente({
+                                variables: { id: cliente.id }
+                              });
+                            }
+                          }}
+                        >
+                          &times; Eliminar
+                        </button>
+                      )}
+                    </Mutation>
                     <Link
                       to={`/cliente/editar/${cliente.id}`}
                       className="btn btn-success d-block d-md-inline-blok">
